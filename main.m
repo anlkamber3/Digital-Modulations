@@ -20,7 +20,7 @@ g = ones(1,ts*sampling_rate);
 modulated_signal = zeros(1,sampling_rate*8*ts);
 constellation_bpsk = zeros(1,8);
 for j=1:8
-    if (bitstream(j) == 1)
+    if (bitstream(j) == 0)
         modulated_signal(1,((j-1)*ts*sampling_rate+1):j*ts*sampling_rate) = (-1) * multiplier_bpsk * g .* carrier(1,((j-1)*ts*sampling_rate+1):j*ts*sampling_rate); %pi degree shift is simply multiplting with -1 and I multiply with sqrt(2) to make average energy 1.
         constellation_bpsk(j) = sqrt(2/2)*(-1); %In order to create an orthonormal basis. 1 comes from sqrt(Eg/2). We know that Eg = 2.
     else 
@@ -54,11 +54,11 @@ for k = 1:4
         qpsk_modulated_signal(1,((k-1)*ts*sampling_rate+1):k*ts*sampling_rate) = multiplier_qpsk *  g .* carrier_qpsk(1,((k-1)*ts*sampling_rate+1):k*ts*sampling_rate) * 1i; 
         constellation_qpsk(k) = sqrt(2/2)*1i;
     elseif bitstream_qpsk(k,:) == [1,0]
-        qpsk_modulated_signal(1,((k-1)*ts*sampling_rate+1):k*ts*sampling_rate) = multiplier_qpsk * g .* carrier_qpsk(1,((k-1)*ts*sampling_rate+1):k*ts*sampling_rate) * (-1); 
-        constellation_qpsk(k) = sqrt(2/2)*(-1);
-    elseif bitstream_qpsk(k,:) == [1,1]
-        qpsk_modulated_signal(1,((k-1)*ts*sampling_rate+1):k*ts*sampling_rate) = multiplier_qpsk * g .* carrier_qpsk(1,((k-1)*ts*sampling_rate+1):k*ts*sampling_rate) * (1i) * (-1);
+        qpsk_modulated_signal(1,((k-1)*ts*sampling_rate+1):k*ts*sampling_rate) = multiplier_qpsk * g .* carrier_qpsk(1,((k-1)*ts*sampling_rate+1):k*ts*sampling_rate) * (-1i); 
         constellation_qpsk(k) = sqrt(2/2)*(-1i);
+    elseif bitstream_qpsk(k,:) == [1,1]
+        qpsk_modulated_signal(1,((k-1)*ts*sampling_rate+1):k*ts*sampling_rate) = multiplier_qpsk * g .* carrier_qpsk(1,((k-1)*ts*sampling_rate+1):k*ts*sampling_rate) * (-1);
+        constellation_qpsk(k) = sqrt(2/2)*(-1);
     end
 end
 
@@ -89,11 +89,11 @@ for i= 1:4
         four_pam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-1) * delta* g .* carrier_4_pam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate); 
         constellation_4_pam(i) = sqrt(1/2) * delta * (-1);
     elseif bitstream_qpsk(i,:) == [1,0]
-        four_pam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = 1 * delta * g .* carrier_4_pam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate); 
-        constellation_4_pam(i) = sqrt(1/2) * delta * (1);
-    elseif bitstream_qpsk(i,:) == [1,1]
-        four_pam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) =  3 * delta * g .* carrier_4_pam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate);
+        four_pam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = 3 * delta * g .* carrier_4_pam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate); 
         constellation_4_pam(i) = sqrt(1/2) * delta * (3);
+    elseif bitstream_qpsk(i,:) == [1,1]
+        four_pam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) =  1 * delta * g .* carrier_4_pam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate);
+        constellation_4_pam(i) = sqrt(1/2) * delta * (1);
     end
 end
 
@@ -123,11 +123,11 @@ for i= 1:2
         qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-3) * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-1) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
         constellation_16_qam(i) = sqrt(1/2)*(-3)*delta_qam + sqrt(1/2)* delta_qam * (-1)* (1i);
     elseif bitstream_16_qam(i,:) == [0,0,1,0]
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-3) * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 3 * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
+        constellation_16_qam(i) = sqrt(1/2)*(-3)*delta_qam + sqrt(1/2)* delta_qam * (3)* (1i);
+    elseif bitstream_16_qam(i,:) == [0,0,1,1]
         qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-3) * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
         constellation_16_qam(i) = sqrt(1/2)*(-3)*delta_qam + sqrt(1/2)* delta_qam * (1)* (1i);
-    elseif bitstream_16_qam(i,:) == [0,0,1,1]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-3) * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 3 *  delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
-        constellation_16_qam(i) = sqrt(1/2)*(-3)*delta_qam + sqrt(1/2)* delta_qam * (3)* (1i);
     elseif bitstream_16_qam(i,:) == [0,1,0,0]
         qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-1) * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-3) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
         constellation_16_qam(i) = sqrt(1/2)*(-1)*delta_qam + sqrt(1/2)* delta_qam * (-3)* (1i);
@@ -135,35 +135,35 @@ for i= 1:2
         qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-1) * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-1) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
         constellation_16_qam(i) = sqrt(1/2)*(-1)*delta_qam + sqrt(1/2)* delta_qam * (-1)* (1i);
     elseif bitstream_16_qam(i,:) == [0,1,1,0]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-1) * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate));
-        constellation_16_qam(i) = sqrt(1/2)*(-1)*delta_qam + sqrt(1/2)* delta_qam * (1)* (1i);
-    elseif bitstream_16_qam(i,:) == [0,1,1,1]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-1) * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 3 *  delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-1) * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 3 * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate));
         constellation_16_qam(i) = sqrt(1/2)*(-1)*delta_qam + sqrt(1/2)* delta_qam * (3)* (1i);
+    elseif bitstream_16_qam(i,:) == [0,1,1,1]
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = (-1) * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 1 *  delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
+        constellation_16_qam(i) = sqrt(1/2)*(-1)*delta_qam + sqrt(1/2)* delta_qam * (1)* (1i);
     elseif bitstream_16_qam(i,:) == [1,0,0,0]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-3) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
-        constellation_16_qam(i) = sqrt(1/2)*(1)*delta_qam + sqrt(1/2)* delta_qam * (-3)* (1i);
-    elseif bitstream_16_qam(i,:) == [1,0,0,1]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-1) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate));
-        constellation_16_qam(i) = sqrt(1/2)*(1)*delta_qam + sqrt(1/2)* delta_qam * (-1)* (1i);
-    elseif bitstream_16_qam(i,:) == [1,0,1,0]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = delta_qam *  g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
-        constellation_16_qam(i) = sqrt(1/2)*(1)*delta_qam + sqrt(1/2)* delta_qam * (1)* (1i);
-    elseif bitstream_16_qam(i,:) == [1,0,1,1]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 3 *  delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
-        constellation_16_qam(i) = sqrt(1/2)*(1)*delta_qam + sqrt(1/2)* delta_qam * (3)* (1i);
-    elseif bitstream_16_qam(i,:) == [1,1,0,0]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) =  3 * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-3) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = 3 * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-3) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
         constellation_16_qam(i) = sqrt(1/2)*(3)*delta_qam + sqrt(1/2)* delta_qam * (-3)* (1i);
-    elseif bitstream_16_qam(i,:) == [1,1,0,1]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = 3 * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-1) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
+    elseif bitstream_16_qam(i,:) == [1,0,0,1]
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = 3 * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-1) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate));
         constellation_16_qam(i) = sqrt(1/2)*(3)*delta_qam + sqrt(1/2)* delta_qam * (-1)* (1i);
-    elseif bitstream_16_qam(i,:) == [1,1,1,0]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = 3 * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
-        constellation_16_qam(i) = sqrt(1/2)*(3)*delta_qam + sqrt(1/2)* delta_qam * (1)* (1i);
-    elseif bitstream_16_qam(i,:) == [1,1,1,1]
-        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) =  3 * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 3 *  delta_qam *  g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate));
+    elseif bitstream_16_qam(i,:) == [1,0,1,0]
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = 3 * delta_qam *  g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 3 * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
         constellation_16_qam(i) = sqrt(1/2)*(3)*delta_qam + sqrt(1/2)* delta_qam * (3)* (1i);
+    elseif bitstream_16_qam(i,:) == [1,0,1,1]
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = 3 * delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 1 *  delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
+        constellation_16_qam(i) = sqrt(1/2)*(3)*delta_qam + sqrt(1/2)* delta_qam * (1)* (1i);
+    elseif bitstream_16_qam(i,:) == [1,1,0,0]
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) =  delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-3) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
+        constellation_16_qam(i) = sqrt(1/2)*(1)*delta_qam + sqrt(1/2)* delta_qam * (-3)* (1i);
+    elseif bitstream_16_qam(i,:) == [1,1,0,1]
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - (-1) * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
+        constellation_16_qam(i) = sqrt(1/2)*(1)*delta_qam + sqrt(1/2)* delta_qam * (-1)* (1i);
+    elseif bitstream_16_qam(i,:) == [1,1,1,0]
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 3 * delta_qam * g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)); 
+        constellation_16_qam(i) = sqrt(1/2)*(1)*delta_qam + sqrt(1/2)* delta_qam * (3)* (1i);
+    elseif bitstream_16_qam(i,:) == [1,1,1,1]
+        qam_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) =  delta_qam * g .* real(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) - 1 *  delta_qam *  g .* imag(carrier_16_qam(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate));
+        constellation_16_qam(i) = sqrt(1/2)*(1)*delta_qam + sqrt(1/2)* delta_qam * (1)* (1i);
         
     end
 end
@@ -181,7 +181,7 @@ multiplier_bfsk = sqrt(2); %To make average energy of constellation unity.
 delta_f = 1/(2*ts);
 constellation_bfsk = zeros(1,2);
 for i = 1:8
-    if (bitstream_bfsk(i) == 1)
+    if (bitstream_bfsk(i) == 0)
         bfsk_modulated_signal(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate) = multiplier_bfsk * g .* exp((1i)*2*pi*frequency * t_bfsk(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate)) .* exp(1i*2*pi* delta_f .* t_bfsk(1,((i-1)*ts*sampling_rate+1):i*ts*sampling_rate));
         constellation_bfsk(i) = 1i;
     else 
@@ -192,31 +192,31 @@ end
 
 bfsk_modulated_signal = real(bfsk_modulated_signal); %Our BFSK modulated signal.
 subplot(5,1,1);
-plot(bpsk_modulated_pulse_stream);
+plot(t,bpsk_modulated_pulse_stream);
 title('BPSK','interpreter','latex');
 xlabel('Time','interpreter','latex');
 ylabel("Amplitude",'interpreter','latex');
 
 subplot(5,1,2);
-plot(qpsk_modulated_pulse_stream);
+plot(t_qpsk,qpsk_modulated_pulse_stream);
 title('QPSK','interpreter','latex');
 xlabel('Time','interpreter','latex');
 ylabel("Amplitude",'interpreter','latex');
 
 subplot(5,1,3);
-plot(four_pam_signal);
+plot(t_4_pam,four_pam_signal);
 title('4-PAM','interpreter','latex');
 xlabel('Time','interpreter','latex');
 ylabel("Amplitude",'interpreter','latex');
 
 subplot(5,1,4);
-plot(qam_signal);
+plot(t_16_qam, qam_signal);
 title('16-QAM','interpreter','latex');
 xlabel('Time','interpreter','latex');
 ylabel("Amplitude",'interpreter','latex'); 
 
 subplot(5,1,5);
-plot(bfsk_modulated_signal);
+plot(t_bfsk,bfsk_modulated_signal);
 title('BFSK','interpreter','latex');
 xlabel('Time','interpreter','latex');
 ylabel("Amplitude",'interpreter','latex');
